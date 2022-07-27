@@ -24,6 +24,10 @@ Firstly, I was trying to detect concept drift so I have used two approaches:
 
 ## 1) Concept drift detection via Adversarial Validation
 
+![alt text](https://user-images.githubusercontent.com/33191285/80440265-5e87e580-8943-11ea-996e-ebec215b3dbf.png)
+
+
+
 With this approach, the system detects concept drift in new data before making inference, trains a model, and produces predictions adapted to the new data.
 The idea is simple: take your training data, remove the target, assemble your training data together with your test data, and create a new binary classification target where the positive label is assigned to the test data.
 
