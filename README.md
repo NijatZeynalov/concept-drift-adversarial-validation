@@ -39,6 +39,9 @@ __In my case, roc_auc_score is above 0.95 which means that model easily distingu
 
 ## 2) Concept drift detection via Kolmogorov-Smirnov test
 
+
+![alt text](https://miro.medium.com/max/934/0*_zFg_-LPurj7FbPL.)
+
 The main goal of concept drift detection is to determine if two distributions are different. Therefore, the first and most basic approach to infer concept drift applies a hypothesis test to flag if a statistically significant change has occurred between the reference and detection windows for each feature in a given data stream.
 
 If the p-value is less than .05, we reject the null hypothesis. We have sufficient evidence to say that the two sample datasets do not come from the same distribution and it can cause concept drift.
