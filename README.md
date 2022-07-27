@@ -77,7 +77,7 @@ The only problem with this method is that you may actually be forced to remove t
 
 Finally, with the strategy of validating by mimicking the test set, you keep on training on all the data, but for validation purposes, you pick your examples only from train dataset which have similiar distribution.
 
-photo
+![alt text](https://user-images.githubusercontent.com/31247506/181360547-df275320-4120-4852-ad04-f0003720f189.jpeg)
 
 For this reason, we will randomly select 250 samples from train dataset in each iteration and use two-sample Kolmogorov-Smirnov (KS) test, which is a non-parametric hypothesis test used to check whether validation candidate data and original test data originate from the same distribution.
 
