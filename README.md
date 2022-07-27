@@ -48,6 +48,50 @@ If the p-value is less than .05, we reject the null hypothesis. We have sufficie
 
 __In my case, 36 features successfully passed Kolmogorov-Smirnov test. We can reject null hypothesis that those features in train and test sets came from the same distribution. Hypothesis that samples are drawn from the same distribution can rejected for 254 features out of 290 based on KS-Test. Which means, we can be worried about concept drift problem.__
 
-### How to solve concept drift problem?
+
+## How to solve concept drift problem?
 
 To overcome concept drift problem, I have implemented two stratagies (suppression and constructing custom validaton set that the empirical distribution of the features data is similar to the test data). 
+
+### Method 1: Automated Feature Selection
+
+As I mentioned before, ROC-AUC scores of 0.8 or more would alert you that the test set is peculiar and quite distinguishable from the training data.
+
+If distributions of the features from the train and test data are similar, we expect the adversarial classifier to be as good as random guesses. However, if the adversarial classifier can distinguish between training and test data well (i.e. AUC score ≫ 50%), the top features from the adversarial classifier are potential candidates exhibiting concept drift between the train and test data. We can then exclude these features from model training.
+
+Such feature selection can be automated by determining the number of features to exclude based on the performance of adversarial classifier (e.g. AUC score) and raw feature importance values (e.g. mean decrease impurity (MDI) in Decision Trees) as follows:
+
+(1) Train an adversarial classifier that predicts P({train,test }|X) to separate train and test.
+
+(2) If the AUC score of the adversarial classifier is greater than an AUC threshold θauc , remove features ranked within top x% of remaining features in feature importance ranking and with raw feature importance values higher than a threshold θimp.
+
+(3) Go back to Step 1, if AUC score greater than θauc .
+
+(4) Once the adversarial AUC drops lower than θauc , train an outcome classifier with the selected features and original target variable.
+
+This method is also called suppression.
+
+The only problem with this method is that you may actually be forced to remove the majority of important variables from your data, and any model you then build on such variable censored data won’t be able to predict sufficiently correctly due to the lack of informative features. __In my case, the roc auc score decreased after deleting features with high score.__
+
+## Method 2: Validation Data Selection using two-sample Kolmogorov-Smirnov (KS) test
+
+Finally, with the strategy of validating by mimicking the test set, you keep on training on all the data, but for validation purposes, you pick your examples only from train dataset which have similiar distribution.
+
+photo
+
+For this reason, we will randomly select 250 samples from train dataset in each iteration and use two-sample Kolmogorov-Smirnov (KS) test, which is a non-parametric hypothesis test used to check whether validation candidate data and original test data originate from the same distribution.
+
+If the number of non-rejected features more than rejected features at least three times, we accept the null hypothesis. In this case, we can say that the two sample datasets come from the same distribution. Then we combine these samples and we construct a new validation dataset, so by selecting from the training data so that the empirical distribution of the features data is similar to the test data.
+
+This way, model evaluation metrics on the validation set should get similar results on the test set, which means if the model works well on the validation data, it should work well on the test data.
+
+
+## Conclusion
+
+From adversarial validation we have evidence that train and test sets come from different distributions. AUC around 0.99 states that XGBoost can easily distinguish train observations from test. These datasets are quite different.
+
+From Kolmogorov-Smirnov Test we can also state that both sets are quite different. Hypothesis that samples are drawn from the same distribution can rejected for 254 features out of 290 based on KS-Test.
+
+After proving concept drift we tried to solve the problem by two strategies: suppression and construct custom validaton set that the empirical distribution of the features data is similar to the test data. 
+
+
